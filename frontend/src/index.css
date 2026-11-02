@@ -27,7 +27,9 @@
   --color-border-strong: #8592A6;    /* inputs, secondary buttons: 3.15:1 */
   --color-focus: #3B6FA8;
   --color-backdrop: rgba(30, 41, 59, 0.45);
+  --color-backdrop-strong: rgba(15, 23, 42, 0.8);   /* behind the landing image preview */
   --color-placeholder: #E2E8F0;      /* landing-page screenshot placeholders */
+  --color-device: #0F172A;           /* phone bezel around the landing-page app screenshot */
   --color-logo: #046B3E;             /* the mark's own green, never used for UI */
 
   /* Map: data colours, used only on the map (dots, legend, popup swatch) */
@@ -619,12 +621,29 @@ select.input { cursor: pointer; }
   color: var(--color-ink); font-size: var(--text-sm); font-weight: var(--weight-semibold);
 }
 .placeholder-wide { aspect-ratio: 16 / 10; }
+.landing-img { display: block; width: 100%; border: 1px solid var(--color-border); border-radius: var(--radius-md); background: var(--color-placeholder); }
+.landing-img.placeholder-photo, .landing-img.placeholder-card { object-fit: cover; }
+.landing-img.placeholder-photo { object-position: top; }   /* keeps the label boxes in view */
+.hero-img { height: auto; box-shadow: var(--elevation-1); }
 .placeholder-card { aspect-ratio: 16 / 9; }
 .placeholder-photo { aspect-ratio: 4 / 3; }
-.placeholder-phone { aspect-ratio: 9 / 16; width: 100%; max-width: 16rem; justify-self: center; }
+/* A screenshot shown inside a phone held sideways (the app records in landscape) */
+.landing-img.phone-landscape { border: 10px solid var(--color-device); border-radius: 28px; box-shadow: var(--elevation-1); background: var(--color-device); }
+
+/* Landing images open a large preview */
+.zoom { display: block; width: 100%; padding: 0; border: 0; background: none; border-radius: var(--radius-md); cursor: zoom-in; }
+.zoom:hover .landing-img { border-color: var(--color-primary); }
+.zoom:has(.phone-landscape) { border-radius: 28px; }   /* focus ring follows the phone frame */
+.preview {
+  margin: auto; padding: 0; border: 0; border-radius: var(--radius-md); overflow: hidden;
+  max-width: min(90vw, 1400px); max-height: 90vh; background: var(--color-surface); box-shadow: var(--elevation-1);
+}
+.preview::backdrop { background: var(--color-backdrop-strong); }
+.preview-img { display: block; width: min(90vw, 1200px); height: calc(90vh - 5rem); object-fit: contain; background: var(--color-device); }
+.preview-bar { display: flex; align-items: center; justify-content: space-between; gap: var(--space-4); padding: var(--space-3) var(--space-4); font-size: var(--text-sm); color: var(--color-muted); }
 
 .card { background: var(--color-surface); border: 1px solid var(--color-border); border-radius: var(--radius-md); box-shadow: var(--elevation-0); padding: var(--space-5); display: flex; flex-direction: column; gap: var(--space-2); }
-.card .placeholder { margin-bottom: var(--space-2); }
+.card .placeholder, .card .landing-img { margin-bottom: var(--space-2); }
 .card-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(15rem, 1fr)); gap: var(--space-4); }
 .card-grid-3 { grid-template-columns: repeat(auto-fit, minmax(16rem, 1fr)); }
 
@@ -636,7 +655,7 @@ select.input { cursor: pointer; }
 }
 .step-icon { color: var(--color-primary); }
 
-.split { display: grid; grid-template-columns: minmax(0, 1fr) 16rem; gap: var(--space-7); align-items: center; }
+.split { display: grid; grid-template-columns: minmax(0, 4fr) minmax(0, 6fr); gap: var(--space-6); align-items: center; }
 .feature-list { display: flex; flex-direction: column; gap: var(--space-3); }
 .feature-list li { display: flex; gap: var(--space-3); }
 .feature-icon { color: var(--color-success); margin-top: 2px; }
@@ -672,6 +691,8 @@ select.input { cursor: pointer; }
   .steps { grid-template-columns: 1fr; }
   .hero-actions .btn { flex: 1 1 100%; }
   .card { padding: var(--space-4); }
+  .preview-img { height: auto; max-height: calc(90vh - 7rem); }
+  .preview-bar { flex-direction: column; align-items: stretch; }
   .page { padding-top: var(--space-5); }
   .panel { padding: var(--space-4); }
   .survey-list { padding: 0 var(--space-4); }

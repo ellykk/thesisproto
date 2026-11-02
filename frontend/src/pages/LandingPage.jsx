@@ -1,3 +1,4 @@
+import { useEffect, useRef, useState } from 'react';
 import { Link } from 'react-router-dom';
 import Icon from '../icons';
 import { MAX_VIDEO_MINUTES } from '../labels';
@@ -21,10 +22,14 @@ const STEPS = [
 ];
 
 const DAMAGE = [
-  { code: 'D40', name: 'Pothole', text: 'A hole in the road surface.' },
-  { code: 'D00', name: 'Crack along the road', text: 'Runs in the same direction as traffic.' },
-  { code: 'D10', name: 'Crack across the road', text: 'Runs from side to side.' },
-  { code: 'D20', name: 'Alligator crack', text: 'Many connected cracks that look like scales.' },
+  { code: 'D40', name: 'Pothole', text: 'A hole in the road surface.',
+    img: '/landing/potholes-d40.jpg', alt: 'Four potholes, each outlined with a box labeled pothole' },
+  { code: 'D00', name: 'Crack along the road', text: 'Runs in the same direction as traffic.',
+    img: '/landing/longitudinal-crack-d00.jpg', alt: 'Two cracks running along a road, each outlined with a box labeled D00' },
+  { code: 'D10', name: 'Crack across the road', text: 'Runs from side to side.',
+    img: '/landing/transverse-crack-d10.jpg', alt: 'An asphalt road with a crack running across the lane, crossing the white lane line' },
+  { code: 'D20', name: 'Alligator crack', text: 'Many connected cracks that look like scales.',
+    img: '/landing/alligator-crack-d20.jpg', alt: 'A patch of connected, scale-like cracks outlined with a box labeled alligator crack' },
 ];
 
 const MOBILE_FEATURES = [
@@ -35,11 +40,16 @@ const MOBILE_FEATURES = [
 ];
 
 const WEB_FEATURES = [
-  { shot: 'upload page with progress', text: 'Upload a video and watch its progress.' },
-  { shot: 'video with damage marked', text: 'Watch the video with each damage marked and labeled.' },
-  { shot: 'damage map with routes', text: 'See every damage on a map, with the route of each drive.' },
-  { shot: 'placing a survey on the map', text: 'No location track? Match a few spots in the video to the map and OcuLubak places the rest.' },
-  { shot: 'damage list and download', text: 'Filter the list of damages and download it as a spreadsheet file (CSV) or JSON.' },
+  { shot: 'upload page with progress', img: '/landing/upload-progress.jpg',
+    alt: 'The upload page after sending a video: steps Uploaded, Analysing and Ready, with a progress bar at Analysing 5%', text: 'Upload a video and watch its progress.' },
+  { shot: 'video with damage marked', img: '/landing/video-damage.jpg',
+    alt: 'A survey of Maglabe Drive: the road video beside a list of 219 damages found, filterable by kind, with a pothole at 0:29 selected', text: 'Watch the video with each damage marked and labeled.' },
+  { shot: 'damage map with routes', img: '/landing/damage-map.jpg',
+    alt: 'The OcuLubak damage map: one drive through Palocpoc, with 219 damages pinned along the route in four colors by kind', text: 'See every damage on a map, with the route of each drive.' },
+  { shot: 'placing a survey on the map', img: '/landing/place-on-map.jpg',
+    alt: 'Placing a survey on the map: the road video paused at 2:13 beside a map with two numbered points joined by a line', text: 'No location track? Match a few spots in the video to the map and OcuLubak places the rest.' },
+  { shot: 'damage list and download', img: '/landing/damage-records.jpg',
+    alt: 'The damage records list: 234 records with filters by road name and kind, each row showing the damage, location, inspection status and confidence, and a Download menu offering CSV or JSON', text: 'Filter the list of damages and download it as a spreadsheet file (CSV) or JSON.' },
 ];
 
 const AUDIENCES = [
@@ -56,8 +66,18 @@ const FAQ = [
   { q: 'How long can a video be?', a: `Up to ${MAX_VIDEO_MINUTES} minutes and 500 MB.` },
 ];
 
-/** Labelled grey box standing in for a real screenshot or photo until one is dropped in. */
-function Placeholder({ label, kind = 'Screenshot', className = '' }) {
+/**
+ * A real image when `img` is given; otherwise a labelled grey box standing in for one.
+ * To fill a placeholder, put the file in public/landing/ and pass img and alt.
+ */
+function Placeholder({ label, kind = 'Screenshot', className = '', img, alt, onOpen }) {
+  if (img) {
+    return (
+      <button type="button" className="zoom" onClick={() => onOpen({ img, alt })} aria-label={`Enlarge image: ${alt}`}>
+        <img src={img} alt="" className={`landing-img ${className}`} loading="lazy" />
+      </button>
+    );
+  }
   return (
     <div className={`placeholder ${className}`} role="img" aria-label={`${kind} placeholder: ${label}`}>
       <span>{kind}: {label}</span>
@@ -75,7 +95,40 @@ function SectionHead({ id, title, lead }) {
 }
 
 /** Public page explaining OcuLubak. "/" for visitors, "/about" for everyone. */
+/** Large image preview in a native modal <dialog>. Escape, Close, or a click outside it closes it. */
+function ImagePreview({ image, onClose }) {
+  const ref = useRef();
+
+  useEffect(() => {
+    const d = ref.current;
+    if (image && !d.open) d.showModal();
+    if (!image && d.open) d.close();
+  }, [image]);
+
+  const closeOnOutsideClick = (e) => {
+    const r = ref.current.getBoundingClientRect();
+    if (e.clientX < r.left || e.clientX > r.right || e.clientY < r.top || e.clientY > r.bottom) ref.current.close();
+  };
+
+  return (
+    <dialog ref={ref} className="preview" aria-label="Image preview" onClose={onClose} onClick={closeOnOutsideClick}>
+      {image && (
+        <figure>
+          <img src={image.img} alt={image.alt} className="preview-img" />
+          <figcaption className="preview-bar">
+            <span>{image.alt}</span>
+            <button type="button" className="btn btn-secondary" onClick={() => ref.current.close()}>
+              <Icon name="x" />Close
+            </button>
+          </figcaption>
+        </figure>
+      )}
+    </dialog>
+  );
+}
+
 export default function LandingPage({ user }) {
+  const [preview, setPreview] = useState(null);
   const cta = user ? { to: '/', label: 'Open dashboard' } : { to: '/login', label: 'Log in' };
 
   return (
@@ -111,7 +164,8 @@ export default function LandingPage({ user }) {
                 <a href="#how" className="btn btn-secondary">See how it works<Icon name="chevron-down" size={16} /></a>
               </div>
             </div>
-            <Placeholder label="the damage map with pinned potholes and cracks" className="placeholder-wide" />
+            <Placeholder img="/landing/damage-map.jpg" className="hero-img" onOpen={setPreview}
+              alt="The OcuLubak damage map: one drive through Palocpoc, with 219 damages pinned along the route in four colors by kind" />
           </div>
         </section>
 
@@ -139,7 +193,7 @@ export default function LandingPage({ user }) {
             <ul className="card-grid">
               {DAMAGE.map(d => (
                 <li key={d.code} className="card damage-card">
-                  <Placeholder kind="Photo" label={d.name.toLowerCase()} className="placeholder-photo" />
+                  <Placeholder kind="Photo" label={d.name.toLowerCase()} img={d.img} alt={d.alt} className="placeholder-photo" onOpen={setPreview} />
                   <h3>{d.name}</h3>
                   <p>{d.text}</p>
                   <p className="code">Technical name: {d.code}</p>
@@ -158,7 +212,8 @@ export default function LandingPage({ user }) {
                 {MOBILE_FEATURES.map(f => <li key={f}><Icon name="check" className="feature-icon" />{f}</li>)}
               </ul>
             </div>
-            <Placeholder label="the mobile app while recording" className="placeholder-phone" />
+            <Placeholder img="/landing/mobile-app-recording.jpg" className="phone-landscape" onOpen={setPreview}
+              alt="The OcuLubak mobile app held sideways, ready to record: the camera view of a road with Horizon and Bonnet lines, GPS ±5 m, and a Start recording button" />
           </div>
         </section>
 
@@ -168,7 +223,7 @@ export default function LandingPage({ user }) {
             <ul className="card-grid">
               {WEB_FEATURES.map(f => (
                 <li key={f.text} className="card">
-                  <Placeholder label={f.shot} className="placeholder-card" />
+                  <Placeholder label={f.shot} img={f.img} alt={f.alt} className="placeholder-card" onOpen={setPreview} />
                   <p>{f.text}</p>
                 </li>
               ))}
@@ -204,6 +259,8 @@ export default function LandingPage({ user }) {
           </div>
         </section>
       </main>
+
+      <ImagePreview image={preview} onClose={() => setPreview(null)} />
 
       <footer className="app-footer">
         <div className="footer-inner landing-footer">
