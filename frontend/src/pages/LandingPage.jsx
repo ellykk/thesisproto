@@ -7,7 +7,6 @@ import PublicHeader from '../components/PublicHeader';
 
 // Thesis credits for the footer.
 const TEAM = ['Kyle Cedric Panganiban', 'Janmikael Samson', 'Gian Paolo Ybut'];
-const PARTNER_OFFICE = 'DPWH Cavite 2nd District Engineering Office';
 
 const SECTIONS = [
   { id: 'how', label: 'How it works' },
@@ -140,7 +139,7 @@ export default function LandingPage({ user }) {
       <a className="skip-link" href="#main">Skip to main content</a>
 
       <PublicHeader home="#top" cta={cta}
-        links={[...SECTIONS.map(s => ({ href: `#${s.id}`, label: s.label })), { to: '/samples', label: 'Sample surveys' }]} />
+        links={SECTIONS.map(s => ({ href: `#${s.id}`, label: s.label }))} />
 
       <main id="main" tabIndex={-1}>
         <section className="landing-section hero" aria-labelledby="hero-title">
@@ -261,7 +260,6 @@ export default function LandingPage({ user }) {
             at De La Salle University-Dasmariñas.
           </p>
           <p>Team: {TEAM.join(', ')}</p>
-          <p>Partner office: {PARTNER_OFFICE}</p>
         </div>
       </footer>
     </div>

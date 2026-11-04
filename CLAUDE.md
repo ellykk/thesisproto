@@ -10,8 +10,8 @@ D40 pothole — RDD2022's own codes; there is no D30), detections are geo-locate
 GPS track or from user-placed control points, and surfaced through a React web app with the thesis's two roles
 (road maintenance personnel and system administrator, see "Roles"). The partner office is the Local Government Unit of
 Mendez-Nuñez, Cavite (the seeded admin's `lgu_name`); never "DPWH Central Office". The web UI deliberately does not
-show the LGU name anywhere (header, footer, login, metadata) except the public landing page footer,
-which credits the partner office (DPWH Cavite 2nd District Engineering Office); keep it out of other UI copy. Severity
+show the LGU name anywhere (header, footer, login, metadata).
+Severity
 scoring was dropped from the product: nothing computes, stores, returns or displays it.
 
 Four independent parts: [backend/](backend/) (Flask API), [frontend/](frontend/) (React + Vite),
