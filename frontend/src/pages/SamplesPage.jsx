@@ -143,8 +143,11 @@ function SampleViewer({ sample }) {
   const jumpTo = (d) => {
     setActiveId(d.id);
     const v = videoRef.current;
-    if (v) { v.pause(); v.currentTime = d.t; }
-    document.getElementById(`damage-${d.id}`)?.scrollIntoView({ block: 'nearest' });
+    if (v) { v.pause(); v.currentTime = d.t; v.scrollIntoView({ block: 'nearest', behavior: 'smooth' }); }
+    // Bring the row into view inside the list only; scrolling the page would hide the video on phones.
+    const row = document.getElementById(`damage-${d.id}`);
+    const list = row?.closest('.damage-list');
+    if (list) list.scrollTop += row.getBoundingClientRect().top - list.getBoundingClientRect().top - list.clientHeight / 2;
   };
 
   return (

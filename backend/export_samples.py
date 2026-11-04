@@ -82,8 +82,9 @@ def export(db, video_id, clip, model):
            '-c:v', 'libx264', '-preset', 'slow', '-crf', '28', '-maxrate', '1400k', '-bufsize', '2800k',
            '-an', '-movflags', '+faststart',
            os.path.join(folder, 'video.mp4'))
-    ffmpeg('-ss', f'{start + min(5, length / 2):.3f}', '-i', src, '-frames:v', '1', '-vf', 'scale=-2:480',
-           '-q:v', '4', os.path.join(folder, 'poster.jpg'))
+    # The poster comes from the original video: no boxes, so no false detection on the thumbnail.
+    ffmpeg('-ss', f'{start + min(5, length / 2):.3f}', '-i', os.path.join(BACKEND, 'uploads', v['filename']),
+           '-frames:v', '1', '-vf', 'scale=-2:480', '-q:v', '4', os.path.join(folder, 'poster.jpg'))
     gpx_src = os.path.join(BACKEND, 'uploads', v['gps_filename'])
     shutil.copyfile(gpx_src, os.path.join(folder, 'track.gpx'))
 
