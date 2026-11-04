@@ -68,6 +68,21 @@ def create_app():
     app.register_blueprint(activity_bp, url_prefix='/api/activity')
     app.register_blueprint(server_info_bp, url_prefix='/api/server')
 
+    # The built web app (frontend/dist, `npm run build` with VITE_API_URL=/api), so one address
+    # serves both the site and the API: what share_online.bat puts behind the public tunnel.
+    dist = os.path.join(base_dir, '..', 'frontend', 'dist')
+    if os.path.isdir(dist):
+        from flask import abort, send_from_directory
+
+        @app.route('/', defaults={'path': ''})
+        @app.route('/<path:path>')
+        def web_app(path):
+            if path.startswith('api/'):
+                abort(404)
+            if path and os.path.isfile(os.path.join(dist, path)):
+                return send_from_directory(dist, path)
+            return send_from_directory(dist, 'index.html')   # client-side routes
+
     # Processing runs in a plain thread that dies with the server. Anything still marked
     # 'uploaded' or 'processing' at boot was interrupted and will never finish — say so
     # instead of leaving it spinning forever in the UI.

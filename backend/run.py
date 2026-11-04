@@ -21,4 +21,5 @@ if __name__ == '__main__':
     print("\n⚡ Press CTRL+C to stop the server")
     print("="*60 + "\n")
     
-    app.run(debug=True, port=5000, host='0.0.0.0')
+    # share_online.bat sets FLASK_DEBUG=0: the debugger must never face the internet.
+    app.run(debug=os.environ.get('FLASK_DEBUG', '1') == '1', port=5000, host='0.0.0.0', threaded=True)
