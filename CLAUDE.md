@@ -285,8 +285,8 @@ the database and map views mix both sources.
 
 ### Frontend conventions
 
-The Vite dev server talks to `http://localhost:5000/api`, hard-coded in `api.js` — there is no proxy
-and no env var, so changing the backend port means editing that constant. All styling lives in one
+The Vite dev server talks to `http://localhost:5000/api` (`API_BASE` in `api.js`, overridable with
+`VITE_API_URL` at build time); there is no proxy. All styling lives in one
 global [frontend/src/index.css](frontend/src/index.css) whose `:root` tokens (`--color-*`, `--text-*`,
 `--space-*`, `--radius-*`, `--elevation-1`) are the only source of values, built against
 [frontend/design.md](frontend/design.md), the authority on every visual decision. In brief: a white
@@ -323,6 +323,14 @@ legend, records table vs cards).
 Routing: logged-out visitors get the public [LandingPage.jsx](frontend/src/pages/LandingPage.jsx) at `/`
 and the login form at `/login` (any other URL redirects there and returns after sign-in); signed-in
 users get the Overview at `/`. `/about` shows the landing page to everyone.
+
+`/samples` ([SamplesPage.jsx](frontend/src/pages/SamplesPage.jsx)) is public too: five pre-analysed
+drives (video, damage list, GPS route with a marker following the video) read from static files in
+`frontend/public/samples/`, written by [backend/export_samples.py](backend/export_samples.py) from
+finished surveys. It needs no backend. The public website is that alone: `frontend/vercel.json` builds
+with `VITE_SAMPLES_ONLY=true`, which leaves only the landing page and the samples (see
+[DEPLOY.md](DEPLOY.md)). `VITE_API_URL` overrides the API address (default `http://localhost:5000/api`).
+The map palette (`DAMAGE_CLASSES`, `dotStyle`) lives in `src/damageMap.js`, shared by both maps.
 
 Survey detail and "Place on the map" are two tabs of one page,
 [SurveyPage.jsx](frontend/src/pages/SurveyPage.jsx) (shared header and polling), with bodies in
