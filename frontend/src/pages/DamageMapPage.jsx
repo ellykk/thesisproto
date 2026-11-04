@@ -14,34 +14,7 @@ import EmptyState from '../components/EmptyState';
 import SkeletonRows from '../components/SkeletonRows';
 import useMediaQuery, { WIDE } from '../useMediaQuery';
 import { cssVar } from '../theme';
-
-// Map data palette. These four hues encode the RDD2022 damage classes and are used only on the
-// map (dots, legend, popup swatch). The values are the --damage-* tokens in index.css: four hues
-// far apart (teal, amber, violet, red) that stay distinct on the OpenStreetMap base.
-const DAMAGE_CLASSES = [
-  { code: 'D00', label: 'Longitudinal crack', token: '--damage-d00' },
-  { code: 'D10', label: 'Transverse crack',   token: '--damage-d10' },
-  { code: 'D20', label: 'Alligator crack',    token: '--damage-d20' },
-  { code: 'D40', label: 'Pothole',            token: '--damage-d40' },
-];
-const CLASS_BY_CODE = Object.fromEntries(DAMAGE_CLASSES.map(c => [c.code, c]));
-const UNKNOWN_CLASS = { code: '', label: 'Unclassified damage', token: '--damage-unknown' };
-
-const DOT_RADIUS = 8;
-const DOT_RADIUS_SELECTED = 11;
-
-const classFor = (d) => CLASS_BY_CODE[d.damage_type] || UNKNOWN_CLASS;
-
-// GPS-measured: solid dot with a 2px white halo. Placed by hand: dashed class-colour stroke over a
-// 35% fill. The dot whose close-up is open is larger with an ink ring. Clicks on a dot do not
-// reach the map, where a click closes the close-up.
-const dotStyle = (d, selected) => {
-  const color = cssVar(classFor(d).token);
-  const base = d.position_source === 'georeferenced'
-    ? { color, weight: 2.5, dashArray: '3 3', fillColor: color, fillOpacity: 0.35 }
-    : { color: cssVar('--map-casing'), weight: 2, fillColor: color, fillOpacity: 1 };
-  return { ...base, ...(selected ? { color: cssVar('--color-ink'), weight: 3, dashArray: null } : {}), bubblingMouseEvents: false };
-};
+import { DAMAGE_CLASSES, DOT_RADIUS, DOT_RADIUS_SELECTED, classFor, dotStyle } from '../damageMap';
 
 // A click on the map itself (not on a dot) closes the close-up.
 function MapClick({ onClick }) {
@@ -88,7 +61,7 @@ function MapPreview({ d, pinned, inline, onClose }) {
 }
 
 // Fit the view to everything drawn. Re-fits when the survey changes so switching moves the view.
-function FitBounds({ points, fitKey }) {
+export function FitBounds({ points, fitKey }) {
   const map = useMap();
   useEffect(() => {
     if (points.length > 0) map.fitBounds(L.latLngBounds(points), { padding: [50, 50], maxZoom: 16 });
@@ -96,7 +69,7 @@ function FitBounds({ points, fitKey }) {
   return null;
 }
 
-function Route({ track, label }) {
+export function Route({ track, label }) {
   const start = track.points[0];
   const end = track.points[track.points.length - 1];
   const line = { lineCap: 'round', lineJoin: 'round', opacity: 1 };
@@ -117,7 +90,7 @@ function Route({ track, label }) {
   );
 }
 
-function Legend({ counts, hasHandPlaced, hasRoute, routeFromPoints }) {
+export function Legend({ counts, hasHandPlaced, hasRoute, routeFromPoints }) {
   return (
     <section className="legend" aria-labelledby="legend-title">
       <h2 id="legend-title" className="panel-subtitle">Legend</h2>

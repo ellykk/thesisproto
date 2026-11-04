@@ -2,6 +2,8 @@ import { useEffect, useRef, useState } from 'react';
 import { Link } from 'react-router-dom';
 import Icon from '../icons';
 import { MAX_VIDEO_MINUTES } from '../labels';
+import { SAMPLES_ONLY } from '../api';
+import PublicHeader from '../components/PublicHeader';
 
 // Thesis credits for the footer.
 const TEAM = ['Kyle Cedric Panganiban', 'Janmikael Samson', 'Gian Paolo Ybut'];
@@ -129,26 +131,16 @@ function ImagePreview({ image, onClose }) {
 
 export default function LandingPage({ user }) {
   const [preview, setPreview] = useState(null);
-  const cta = user ? { to: '/', label: 'Open dashboard' } : { to: '/login', label: 'Log in' };
+  // The public website has no accounts: its one button opens the sample surveys.
+  const cta = SAMPLES_ONLY ? { to: '/samples', label: 'Try the sample surveys' }
+    : user ? { to: '/', label: 'Open dashboard' } : { to: '/login', label: 'Log in' };
 
   return (
     <div className="landing" id="top">
       <a className="skip-link" href="#main">Skip to main content</a>
 
-      <header className="landing-header">
-        <div className="landing-bar">
-          <a href="#top" className="brand">
-            <img src="/oculubak-icon-mono.svg" alt="" width="44" height="28" />
-            <span className="brand-name">OcuLubak</span>
-          </a>
-          <nav className="landing-nav" aria-label="On this page">
-            <ul>
-              {SECTIONS.map(s => <li key={s.id}><a href={`#${s.id}`}>{s.label}</a></li>)}
-            </ul>
-          </nav>
-          <Link to={cta.to} className="btn btn-primary landing-cta">{cta.label}</Link>
-        </div>
-      </header>
+      <PublicHeader home="#top" cta={cta}
+        links={[...SECTIONS.map(s => ({ href: `#${s.id}`, label: s.label })), { to: '/samples', label: 'Sample surveys' }]} />
 
       <main id="main" tabIndex={-1}>
         <section className="landing-section hero" aria-labelledby="hero-title">

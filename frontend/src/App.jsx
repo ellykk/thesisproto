@@ -1,9 +1,10 @@
 import { BrowserRouter as Router, Routes, Route, Navigate, useLocation } from 'react-router-dom';
 import { useEffect, useState } from 'react';
-import { AUTH_EXPIRED, TOKEN_KEY } from './api';
+import { AUTH_EXPIRED, SAMPLES_ONLY, TOKEN_KEY } from './api';
 import { canAccess, roleOf } from './roles';
 import LoginPage from './pages/LoginPage';
 import LandingPage from './pages/LandingPage';
+import SamplesPage from './pages/SamplesPage';
 import DashboardPage from './pages/DashboardPage';
 import UploadPage from './pages/UploadPage';
 import VideoListPage from './pages/VideoListPage';
@@ -63,11 +64,19 @@ function App() {
   };
 
   // The landing page is "/" for visitors and "/about" for everyone (the account menu links there).
+  // The sample surveys are public. The public website (SAMPLES_ONLY) has nothing else.
   return (
     <Router>
       <Routes>
         <Route path="/about" element={<LandingPage user={user} />} />
-        {user ? (
+        <Route path="/samples" element={<SamplesPage user={user} />} />
+        <Route path="/samples/:id" element={<SamplesPage user={user} />} />
+        {SAMPLES_ONLY ? (
+          <>
+            <Route path="/" element={<LandingPage user={null} />} />
+            <Route path="*" element={<Navigate to="/" replace />} />
+          </>
+        ) : user ? (
           <Route path="*" element={<AppShell user={user} onLogout={handleLogout} />} />
         ) : (
           <>
