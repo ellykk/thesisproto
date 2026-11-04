@@ -1,0 +1,5 @@
+{
+  "buildCommand": "VITE_SAMPLES_ONLY=true npm run build",
+  "outputDirectory": "dist",
+  "rewrites": [{ "source": "/(.*)", "destination": "/index.html" }]
+}

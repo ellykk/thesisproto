@@ -1,6 +1,10 @@
 import axios from 'axios';
 
-const API_BASE = 'http://localhost:5000/api';
+const API_BASE = import.meta.env.VITE_API_URL || 'http://localhost:5000/api';
+
+// The public website (Vercel) has no backend: it shows the landing page and the sample surveys
+// only. Set by frontend/vercel.json's build command; local builds keep the full app.
+export const SAMPLES_ONLY = import.meta.env.VITE_SAMPLES_ONLY === 'true';
 
 const api = axios.create({
   baseURL: API_BASE,
